@@ -76,10 +76,23 @@ if (!sessionId) {
   redirectToNewSession();
 } else {
   const pages = {
-    login: loadModule('login', true, sessionId),
-    home: loadModule('home', true, sessionId),
-    posts: loadModule('posts', true, sessionId),
+    login: {
+      module: loadModule('login', true, sessionId),
+      title: 'Login Page',
+      description: 'This is the login page description.'
+    },
+    home: {
+      module: loadModule('home', true, sessionId),
+      title: 'Home Page',
+      description: 'Welcome to the home page.'
+    },
+    posts: {
+      module: loadModule('posts', true, sessionId),
+      title: 'Posts Page',
+      description: 'View the latest posts here.'
+    },
   };
+  
 
   const regularModules = {
     notifications: loadModule('notifications', false, sessionId),
@@ -88,13 +101,38 @@ if (!sessionId) {
   };
 
   function showPage(pageName) {
-    pages[pageName].then((page) => {
+    const page = pages[pageName];
+    
+    if (!page) {
+      console.log(`Page not found: ${pageName}`);
+      return;
+    }
+  
+    page.module.then((module) => {
       console.log(`Showing ${pageName} page`);
+  
+      // Remove existing content from the root element
       const root = document.getElementById('root');
-      root.innerHTML = '';
-      page(); 
+      while (root.firstChild) {
+        root.removeChild(root.firstChild);
+      }
+  
+      document.title = page.title;
+  
+      const existingMetaDescriptions = document.querySelectorAll('meta[name="description"]');
+      existingMetaDescriptions.forEach((meta) => meta.remove());
+  
+      const metaDescription = document.createElement('meta');
+      metaDescription.setAttribute('name', 'description');
+      metaDescription.setAttribute('content', page.description);
+      document.head.appendChild(metaDescription);
+  
+      module();
+    }).catch((error) => {
+      console.error(`Error loading ${pageName} module:`, error);
     });
   }
+  
 
   window.addEventListener('hashchange', () => {
     const pageName = window.location.hash.substring(1);
