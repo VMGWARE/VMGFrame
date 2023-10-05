@@ -78,11 +78,13 @@ if (!sessionId) {
   const pages = {
     login: loadModule('login', true, sessionId),
     home: loadModule('home', true, sessionId),
+    posts: loadModule('posts', true, sessionId),
   };
 
   const regularModules = {
     notifications: loadModule('notifications', false, sessionId),
     css: loadModule('css', false, sessionId),
+    lazyload: loadModule('lazyload', false, sessionId),
   };
 
   function showPage(pageName) {
